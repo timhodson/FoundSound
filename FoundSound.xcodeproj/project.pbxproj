@@ -33,6 +33,13 @@
 		EDAFD0C61498CE60004B9E78 /* Capture.bundle in Resources */ = {isa = PBXBuildFile; fileRef = EDAFD0C51498CE60004B9E78 /* Capture.bundle */; };
 		EDAFD0C81498CE60004B9E78 /* PhoneGap.plist in Resources */ = {isa = PBXBuildFile; fileRef = EDAFD0C71498CE60004B9E78 /* PhoneGap.plist */; };
 		EDAFD0CC1498CE60004B9E78 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = EDAFD0CB1498CE60004B9E78 /* AppDelegate.m */; };
+		EDAFD0D51498CECF004B9E78 /* www in Resources */ = {isa = PBXBuildFile; fileRef = EDAFD0D41498CECF004B9E78 /* www */; };
+		EDAFD0E41498CEF9004B9E78 /* ChildBrowser.bundle in Resources */ = {isa = PBXBuildFile; fileRef = EDAFD0D71498CEF9004B9E78 /* ChildBrowser.bundle */; };
+		EDAFD0E61498CEF9004B9E78 /* ChildBrowserCommand.m in Sources */ = {isa = PBXBuildFile; fileRef = EDAFD0DA1498CEF9004B9E78 /* ChildBrowserCommand.m */; };
+		EDAFD0E71498CEF9004B9E78 /* ChildBrowserViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = EDAFD0DC1498CEF9004B9E78 /* ChildBrowserViewController.m */; };
+		EDAFD0E81498CEF9004B9E78 /* ChildBrowserViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = EDAFD0DD1498CEF9004B9E78 /* ChildBrowserViewController.xib */; };
+		EDAFD124149931F7004B9E78 /* SAiOSKeychainPlugin.m in Sources */ = {isa = PBXBuildFile; fileRef = EDAFD10A149931F6004B9E78 /* SAiOSKeychainPlugin.m */; };
+		EDAFD1311499326E004B9E78 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EDAFD1301499326E004B9E78 /* Security.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -50,10 +57,10 @@
 		EDAFD09F1498CE60004B9E78 /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = System/Library/Frameworks/SystemConfiguration.framework; sourceTree = SDKROOT; };
 		EDAFD0A11498CE60004B9E78 /* MobileCoreServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MobileCoreServices.framework; path = System/Library/Frameworks/MobileCoreServices.framework; sourceTree = SDKROOT; };
 		EDAFD0A31498CE60004B9E78 /* CoreMedia.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreMedia.framework; path = System/Library/Frameworks/CoreMedia.framework; sourceTree = SDKROOT; };
-		EDAFD0A71498CE60004B9E78 /* FoundSound-Info.plist */ = {isa = PBXFileReference; path = "FoundSound-Info.plist"; sourceTree = "<group>"; };
+		EDAFD0A71498CE60004B9E78 /* FoundSound-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "FoundSound-Info.plist"; sourceTree = "<group>"; };
 		EDAFD0A91498CE60004B9E78 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		EDAFD0AB1498CE60004B9E78 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
-		EDAFD0AD1498CE60004B9E78 /* FoundSound-Prefix.pch */ = {isa = PBXFileReference; path = "FoundSound-Prefix.pch"; sourceTree = "<group>"; };
+		EDAFD0AD1498CE60004B9E78 /* FoundSound-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "FoundSound-Prefix.pch"; sourceTree = "<group>"; };
 		EDAFD0AE1498CE60004B9E78 /* PhoneGap.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = PhoneGap.framework; path = /Users/Shared/PhoneGap/Frameworks/PhoneGap.framework; sourceTree = "<absolute>"; };
 		EDAFD0B31498CE60004B9E78 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = Resources/en.lproj/Localizable.strings; sourceTree = "<group>"; };
 		EDAFD0B71498CE60004B9E78 /* es */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = es; path = Resources/es.lproj/Localizable.strings; sourceTree = "<group>"; };
@@ -64,9 +71,19 @@
 		EDAFD0C31498CE60004B9E78 /* Default@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "Default@2x.png"; path = "Resources/splash/Default@2x.png"; sourceTree = "<group>"; };
 		EDAFD0C51498CE60004B9E78 /* Capture.bundle */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.plug-in"; name = Capture.bundle; path = Resources/Capture.bundle; sourceTree = "<group>"; };
 		EDAFD0C71498CE60004B9E78 /* PhoneGap.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = PhoneGap.plist; sourceTree = "<group>"; };
-		EDAFD0CA1498CE60004B9E78 /* AppDelegate.h */ = {isa = PBXFileReference; name = AppDelegate.h; path = Classes/AppDelegate.h; sourceTree = "<group>"; };
+		EDAFD0CA1498CE60004B9E78 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = AppDelegate.h; path = Classes/AppDelegate.h; sourceTree = "<group>"; };
 		EDAFD0CB1498CE60004B9E78 /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = AppDelegate.m; path = Classes/AppDelegate.m; sourceTree = "<group>"; };
-		EDAFD0CE1498CE60004B9E78 /* README */ = {isa = PBXFileReference; name = README; path = Plugins/README; sourceTree = "<group>"; };
+		EDAFD0CE1498CE60004B9E78 /* README */ = {isa = PBXFileReference; lastKnownFileType = text; name = README; path = Plugins/README; sourceTree = "<group>"; };
+		EDAFD0D41498CECF004B9E78 /* www */ = {isa = PBXFileReference; lastKnownFileType = folder; path = www; sourceTree = "<group>"; };
+		EDAFD0D71498CEF9004B9E78 /* ChildBrowser.bundle */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.plug-in"; path = ChildBrowser.bundle; sourceTree = "<group>"; };
+		EDAFD0D91498CEF9004B9E78 /* ChildBrowserCommand.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ChildBrowserCommand.h; sourceTree = "<group>"; };
+		EDAFD0DA1498CEF9004B9E78 /* ChildBrowserCommand.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ChildBrowserCommand.m; sourceTree = "<group>"; };
+		EDAFD0DB1498CEF9004B9E78 /* ChildBrowserViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ChildBrowserViewController.h; sourceTree = "<group>"; };
+		EDAFD0DC1498CEF9004B9E78 /* ChildBrowserViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ChildBrowserViewController.m; sourceTree = "<group>"; };
+		EDAFD0DD1498CEF9004B9E78 /* ChildBrowserViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = ChildBrowserViewController.xib; sourceTree = "<group>"; };
+		EDAFD108149931F6004B9E78 /* SAiOSKeychainPlugin.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SAiOSKeychainPlugin.h; sourceTree = "<group>"; };
+		EDAFD10A149931F6004B9E78 /* SAiOSKeychainPlugin.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SAiOSKeychainPlugin.m; sourceTree = "<group>"; };
+		EDAFD1301499326E004B9E78 /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -74,6 +91,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				EDAFD1311499326E004B9E78 /* Security.framework in Frameworks */,
 				EDAFD08C1498CE60004B9E78 /* Foundation.framework in Frameworks */,
 				EDAFD08E1498CE60004B9E78 /* UIKit.framework in Frameworks */,
 				EDAFD0901498CE60004B9E78 /* CoreGraphics.framework in Frameworks */,
@@ -104,6 +122,8 @@
 		EDAFD0791498CE5F004B9E78 = {
 			isa = PBXGroup;
 			children = (
+				EDAFD1301499326E004B9E78 /* Security.framework */,
+				EDAFD0D41498CECF004B9E78 /* www */,
 				EDAFD0A51498CE60004B9E78 /* FoundSound */,
 				EDAFD08A1498CE60004B9E78 /* Frameworks */,
 				EDAFD0881498CE60004B9E78 /* Products */,
@@ -221,9 +241,33 @@
 		EDAFD0CD1498CE60004B9E78 /* Plugins */ = {
 			isa = PBXGroup;
 			children = (
+				EDAFD0EE149931F6004B9E78 /* Keychain */,
+				EDAFD0D61498CEF9004B9E78 /* ChildBrowser */,
 				EDAFD0CE1498CE60004B9E78 /* README */,
 			);
 			name = Plugins;
+			sourceTree = "<group>";
+		};
+		EDAFD0D61498CEF9004B9E78 /* ChildBrowser */ = {
+			isa = PBXGroup;
+			children = (
+				EDAFD0D71498CEF9004B9E78 /* ChildBrowser.bundle */,
+				EDAFD0D91498CEF9004B9E78 /* ChildBrowserCommand.h */,
+				EDAFD0DA1498CEF9004B9E78 /* ChildBrowserCommand.m */,
+				EDAFD0DB1498CEF9004B9E78 /* ChildBrowserViewController.h */,
+				EDAFD0DC1498CEF9004B9E78 /* ChildBrowserViewController.m */,
+				EDAFD0DD1498CEF9004B9E78 /* ChildBrowserViewController.xib */,
+			);
+			path = ChildBrowser;
+			sourceTree = "<group>";
+		};
+		EDAFD0EE149931F6004B9E78 /* Keychain */ = {
+			isa = PBXGroup;
+			children = (
+				EDAFD108149931F6004B9E78 /* SAiOSKeychainPlugin.h */,
+				EDAFD10A149931F6004B9E78 /* SAiOSKeychainPlugin.m */,
+			);
+			path = Keychain;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -290,6 +334,9 @@
 				EDAFD0C41498CE60004B9E78 /* Default@2x.png in Resources */,
 				EDAFD0C61498CE60004B9E78 /* Capture.bundle in Resources */,
 				EDAFD0C81498CE60004B9E78 /* PhoneGap.plist in Resources */,
+				EDAFD0D51498CECF004B9E78 /* www in Resources */,
+				EDAFD0E41498CEF9004B9E78 /* ChildBrowser.bundle in Resources */,
+				EDAFD0E81498CEF9004B9E78 /* ChildBrowserViewController.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -318,6 +365,9 @@
 			files = (
 				EDAFD0AC1498CE60004B9E78 /* main.m in Sources */,
 				EDAFD0CC1498CE60004B9E78 /* AppDelegate.m in Sources */,
+				EDAFD0E61498CEF9004B9E78 /* ChildBrowserCommand.m in Sources */,
+				EDAFD0E71498CEF9004B9E78 /* ChildBrowserViewController.m in Sources */,
+				EDAFD124149931F7004B9E78 /* SAiOSKeychainPlugin.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
