@@ -1,8 +1,26 @@
-	// SoundAt App code
+	// FoundSound App code
 
 console.log('Reading app.js');
 
-function soundcloudLogin(callback){
+
+	// our User
+var user = new Object();
+
+var track = new Object();
+
+
+/* When this function is called, PhoneGap has been initialized and is ready to roll */
+function onDeviceReady()
+{
+	authenticateUser(user);
+		// wait for the authentication check...
+	setTimeout('if(!user.isLoggedIn){soundcloudLogin();}else{console.log("User is already logged in")}',500);
+	
+}
+
+
+
+function soundcloudLogin(){
 	console.log("Attempting to login");
 	var my_client_id = "c45608d987cdd8ac1e9869930c3d8304";
 	var my_redirect_uri = "http://timhodson.com/sc_loginsuccess.html";
@@ -17,12 +35,12 @@ function soundcloudLogin(callback){
 	client_browser.onClose = function(){
 		console.log("Child browser closed");
 			//console.log("soundcloudLogin(): getKey(): token = "+ getKey('oauth_token', function(token){return token;}));
-		if(isLoggedIn()){
-			if(callback && typeof(callback) === 'function'){
-				console.log("calling callback:"+callback);
-				callback.call(); 
-			}
-		}
+//		if(user.isLoggedIn){
+//			if(callback && typeof(callback) === 'function'){
+//				console.log("EEEEEEEEEEEEEEEE calling callback:"+callback);
+//				callback.call(); 
+//			}
+//		}
 	};
 	
 	if(client_browser != null) {
@@ -37,6 +55,7 @@ function soundcloudLogin(callback){
 function soundcloudLogout(){
 	console.log("Logging out");
 	removeKey('oauth_token');
+	user.isLoggedIn = false;
 }
 
 function soundcloudLocChanged(loc){	
@@ -55,7 +74,7 @@ function soundcloudLocChanged(loc){
 			
 				// Store the key in the iOS keychain
 			setKey('oauth_token', acCode);
-			
+			user.isLoggedIn = true;
 			
 		}else{
 				// something didn't work so we will make sure the token is unset.
@@ -67,20 +86,12 @@ function soundcloudLocChanged(loc){
 
 
 
-	/* When this function is called, PhoneGap has been initialized and is ready to roll */
-function onDeviceReady()
-{
-	if(!isLoggedIn()){
-		soundcloudLogin();
-	}
-	
-}
+
 
 	//Keychain accessor functions
 function getKey(key, callback, servicename)
 {	
 	servicename = servicename || 'foundsound';
-	
 	var win = function(key, value) {
 	 	console.log("GET SUCCESS - Key: " + key + " Value: " + value);
 		callback(value);
@@ -89,10 +100,7 @@ function getKey(key, callback, servicename)
 		console.log("GET FAIL - Key: " + key + " Error: " + error);
 		callback('');
 	};
-	
 	window.plugins.keychain.getForKey(key, servicename, win, fail);	
-	
-	
 }
 
 function setKey(key, value, servicename)
@@ -124,7 +132,15 @@ function removeKey(key, servicename)
 
 
 
-
+	// A button will call this function
+function captureAudio() {
+    // Launch device audio recording application, 
+    // allowing user to capture up to 2 audio clips	
+	if(user.isLoggedIn){
+		console.log("About to capture Audio");
+		navigator.device.capture.captureAudio(captureSuccess, captureError, {limit: 2 });
+	} 
+}
 
 	// Called when capture operation is finished
 	//
@@ -144,7 +160,7 @@ function captureSuccess(mediaFiles) {
 		
 //		mymedia.play();
 		
-		getLocation();
+//		getLocation();
 		
 		uploadFile(mediaFiles[i]);
 		
@@ -159,33 +175,28 @@ function captureError(error) {
 	navigator.notification.alert(msg, null, 'Uh oh!');
 }
 
-	// A button will call this function
-function captureAudio() {
-    // Launch device audio recording application, 
-    // allowing user to capture up to 2 audio clips
-				
-		//TODO Check the user is logged in - if not got to #login
-	
-	if(isLoggedIn()){
-		console.log("About to capture Audio");
-		navigator.device.capture.captureAudio(captureSuccess, captureError, {limit: 1 });
-	} else {
-		soundcloudLogin(function(){ captureAudio(); });
-	}
-}
+
 
 	// Upload files to server
 function uploadFile(mediaFile, trackName ) {
 	
-	trackName = trackName || mediaFile.name + 'Uploaded by FoundSound';
+	trackName = trackName || mediaFile.name + ' uploaded by FoundSound';
 	
 	getKey('oauth_token', function(token){
 				 
+				 $.mobile.changePage('#uploading', {transition:'pop'});
+				 
 				 // phonegap provides a FileTransfer object to allow us to upload files
 				 var win = function(r) {
-				 console.log("Code = " + r.responseCode);
-				 console.log("Response = " + r.response);
-				 console.log("Sent = " + r.bytesSent);
+					console.log("Code = " + r.responseCode);
+					console.log("Response = " + r.response);
+					console.log("Sent = " + r.bytesSent);
+				 
+					// don't like using alerts, but for now...
+					navigator.notification.alert("Uploaded Successfully");
+				 
+					$.mobile.changePage('#metadata', {transition:'fade'});
+				 
 				 }
 				 
 				 var fail = function(error) {
@@ -228,25 +239,25 @@ function uploadFile(mediaFile, trackName ) {
 
 function getLocation(){
 	
+	var win = function(){
+		
+	}
+	
+	navigator.getCurrentPosition(win, fail, { enableHighAccuracy: true });
 }
 
 
-function isLoggedIn(){
-
-	var retval = 0;
+function authenticateUser(user){
 	getKey('oauth_token',function(token){
 			
 			if(token != undefined && token != ''){
 				 console.log("isLoggedIn(): LOGGED IN: "+ token);		
-				 retVal = 1;
+				 user.isLoggedIn = true;
 			} else {
 				 // make sure that we are really logged out
 				 console.log("isLoggedIn(): NOT LOGGED IN: "+ token);
 				 //removeKey('oauth_token');
-				 retVal = 0;
+				 user.isLoggedIn = false;
 			}			 
 	});	
-	console.log("isLoggedIn(): retVal: "+ retVal);
-
-	return retVal;
 }

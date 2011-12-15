@@ -20,8 +20,7 @@
 	<script type="text/javascript" charset="utf-8" src="js/phonegap-1.2.0.js"></script>
 		
 	<script type="text/javascript" charset="utf-8" src="js/jquery/jquery-1.7.1.min.js"></script>
-	<script type="text/javascript" charset="utf-8" src="js/jquery/jquery.mobile-1.0.js"></script>   
-	<script type="text/javascript" charset="utf-8" src="js/base64.js"></script>   
+	<script type="text/javascript" charset="utf-8" src="js/jquery/jquery.mobile-1.0.js"></script>    
 
 		<!-- PhoneGap Plugins -->
 	<script type="text/javascript" charset="utf-8" src="js/ChildBrowser.js"></script>
@@ -65,16 +64,20 @@
 		</div><!-- /page one -->
 		
 		
+		
+		
+		
 		<!-- Start of second page: #two -->
 		<div data-role="page" id="metadata" data-theme="a">
 			
 			<div data-role="header">
-				<h1>About your FoundSounds</h1>
+				<h1>About your FoundSound</h1>
 			</div><!-- /header -->
 			
 			<div data-role="content" data-theme="a">	
-				<h2>metadata</h2>
-				<p><a href="#record" data-direction="reverse" data-role="button" data-theme="b">Back to page "one"</a></p>	
+				<form id="metadataform" action="index.html" method="post">
+					getMetaDataForFoundSound();
+				</form>
 				
 			</div><!-- /content -->
 			
@@ -83,6 +86,14 @@
 
 			</div><!-- /footer -->
 		</div><!-- /page two -->
+		
+		
+		
+			<div data-role="page" id="uploading" data-theme="e">
+				<h1>Uploading</h1>
+				<p>PLease wait...</p>
+			</div>
+		
 		
 		
 		<!-- Start of third page: #login -->
