@@ -2,10 +2,10 @@
 
 console.log('Reading app.js');
 
-
-function soundcloudLogin(){
+function soundcloudLogin(callback){
 	console.log("Attempting to login");
-	var my_client_id = "c45608d987cdd8ac1e9869930c3d8304", my_redirect_uri = "http://timhodson.com/sc_loginsuccess.html";
+	var my_client_id = "c45608d987cdd8ac1e9869930c3d8304";
+	var my_redirect_uri = "http://timhodson.com/sc_loginsuccess.html";
 	
 	var authorize_url = "https://soundcloud.com/connect?";
 	authorize_url += "client_id=" + my_client_id;
@@ -13,101 +13,86 @@ function soundcloudLogin(){
 	authorize_url += "&response_type=token";
 	
 	client_browser = ChildBrowser.install();
-	client_browser.onLocationChange = function(loc){
-		soundcloudLocChanged(loc);
+	client_browser.onLocationChange = function(loc){ soundcloudLocChanged(loc); };
+	client_browser.onClose = function(){
+		console.log("Child browser closed");
+			//console.log("soundcloudLogin(): getKey(): token = "+ getKey('oauth_token', function(token){return token;}));
+		if(isLoggedIn()){
+			if(callback && typeof(callback) === 'function'){
+				console.log("calling callback:"+callback);
+				callback.call(); 
+			}
+		}
 	};
-	if (client_browser != null) {
+	
+	if(client_browser != null) {
 		window.plugins.childBrowser.showWebPage(authorize_url);
 	}else{
-		console.log("Child Browser is null for some reason");
+		console.log("soundcloudLogin(): Child browser is null for some reason");
 	}
+	
+		
 };
 
-function soundcloudLocChanged(loc){
+function soundcloudLogout(){
+	console.log("Logging out");
+	removeKey('oauth_token');
+}
+
+function soundcloudLocChanged(loc){	
 	/* Here we check if the url is the login success */
-	console.log("Location Changed to: "+loc);
-	if (loc.indexOf("http://timhodson.com/sc_loginsuccess.html") > -1) {
+	var my_redirect_uri = "http://timhodson.com/sc_loginsuccess.html";
+	
+	console.log("soundcloudLocChanged(): Location Changed to: "+loc);
+
+	if (loc.indexOf(my_redirect_uri) > -1) {
 		
-		var acCode = loc.match(/access_token=(.*)$/)[1] ;
-		if(acCode != ''){
+		var acCode = loc.match(/access_token=([^&]*)&.*$/)[1] ;
+		if(acCode != '' || acCode != undefined ){
 			client_browser.close(); 
+			
+			console.log("soundcloudLocChanged(): Access Token is " + acCode);
+			
+				// Store the key in the iOS keychain
+			setKey('oauth_token', acCode);
+			
+			
+		}else{
+				// something didn't work so we will make sure the token is unset.
+			console.log("soundcloudLocChanged(): something didn't work: " + acCode);
+			removeKey('oauth_token');
 		}
-		console.log("Access Token is " + acCode);
-		setKey('oauth_token', acCode);
-		
-		}
+	}
 }
 
 
 
-
-
-	// Child browser code
 	/* When this function is called, PhoneGap has been initialized and is ready to roll */
 function onDeviceReady()
 {
+	if(!isLoggedIn()){
+		soundcloudLogin();
+	}
 	
-	
-	
-		
-//	var cb = ChildBrowser.install();
-//	if(cb != null && 1==0)
-//		{
-//		cb.onLocationChange = function(loc){ locChanged(loc); };
-//		cb.onClose = function(){ onCloseBrowser()};
-//		cb.onOpenExternal = function(){ onOpenExternal();};
-//		
-//		window.plugins.childBrowser.showWebPage("http://timhodson.com");
-//		
-//		}
-//	
-//	var msg = function(){navigator.notification.alert("Connected to SoundCloud for the first time");} ;
-//	
-//		// SoundCloud code
-//		SC.initialize({
-//								client_id: "c45608d987cdd8ac1e9869930c3d8304",
-//								redirect_uri: "http://timhodson.com/sc_callback.html",
-//								});
-//	
-//	if(SC.isConnected()){
-//		console.log("Logged in");
-//
-//		navigator.notification.alert("Connected to SoundCloud already");
-//	}else{
-//		console.log("Not logged in yet: %o",SC);
-//		SC.connect({
-//							 connected: msg
-//							 });
-//	}
 }
-
-function onCloseBrowser()
-{
-	alert("In index.html child browser closed");
-}
-
-function locChanged(loc)
-{
-	alert("In index.html new loc = " + loc);
-}
-
-function onOpenExternal()
-{
-	alert("In index.html onOpenExternal");
-}
-
 
 	//Keychain accessor functions
-function getKey(key, servicename)
+function getKey(key, callback, servicename)
 {	
+	servicename = servicename || 'foundsound';
+	
 	var win = function(key, value) {
-		console.log("GET SUCCESS - Key: " + key + " Value: " + value);
+	 	console.log("GET SUCCESS - Key: " + key + " Value: " + value);
+		callback(value);
 	};
 	var fail = function(key, error) {
 		console.log("GET FAIL - Key: " + key + " Error: " + error);
+		callback('');
 	};
 	
-	window.plugins.keychain.getForKey(key, servicename, win, fail);
+	window.plugins.keychain.getForKey(key, servicename, win, fail);	
+	
+	
 }
 
 function setKey(key, value, servicename)
@@ -125,6 +110,7 @@ function setKey(key, value, servicename)
 
 function removeKey(key, servicename)
 {
+	servicename = servicename || 'foundsound';
 	var win = function(key) {
 		console.log("REMOVE SUCCESS - Key: " + key);
 	};
@@ -156,42 +142,111 @@ function captureSuccess(mediaFiles) {
 												console.log("playAudio():Audio Error: "+err);
 												});
 		
-		mymedia.play();
+//		mymedia.play();
+		
+		getLocation();
 		
 		uploadFile(mediaFiles[i]);
 		
 	}       
 }
 
-	// Called if something bad happens.
-	// 
+	// Called if something bad happens when capturing.
+	// TODO some sensible error checking.
+	// 3 - there was no file captured
 function captureError(error) {
 	var msg = 'An error occurred during capture: ' + error.code;
 	navigator.notification.alert(msg, null, 'Uh oh!');
 }
 
 	// A button will call this function
-	//
 function captureAudio() {
     // Launch device audio recording application, 
     // allowing user to capture up to 2 audio clips
-		
-//	for (i=0 , len = capture.supportedAudioModes.length, i <= len , i += 1){
-//		console.log("Supported Audio Mode:"+capture.supportedAudioModes[i]);
-//	}
-		
+				
 		//TODO Check the user is logged in - if not got to #login
 	
-	navigator.device.capture.captureAudio(captureSuccess, captureError, {limit: 2, mode: '.mp3'});
+	if(isLoggedIn()){
+		console.log("About to capture Audio");
+		navigator.device.capture.captureAudio(captureSuccess, captureError, {limit: 1 });
+	} else {
+		soundcloudLogin(function(){ captureAudio(); });
+	}
 }
 
 	// Upload files to server
-function uploadFile(mediaFile) {
-//	var token = getKey('oauth_token');
-//	var data = { 
-//	oauth_token: token ,
-//		track[asset_data]: '@'
-//	};
-//	$.post('https://api.soundcloud.com/tracks.json', options);
+function uploadFile(mediaFile, trackName ) {
+	
+	trackName = trackName || mediaFile.name + 'Uploaded by FoundSound';
+	
+	getKey('oauth_token', function(token){
+				 
+				 // phonegap provides a FileTransfer object to allow us to upload files
+				 var win = function(r) {
+				 console.log("Code = " + r.responseCode);
+				 console.log("Response = " + r.response);
+				 console.log("Sent = " + r.bytesSent);
+				 }
+				 
+				 var fail = function(error) {
+				 alert("An error has occurred: Code = " = error.code);
+				 }
+				 
+				 var options = new FileUploadOptions();
+				 options.fileKey = 'track[asset_data]';
+				 options.fileName=mediaFile.name;
+				 options.mimeType='audio/wav';
+				 
+				 var params = {
+					oauth_token:  token ,
+					'track[title]': trackName,
+					'track[sharing]': 'public'
+				 };
+				 
+				 options.params = params ;
+				 
+				 var ft = new FileTransfer();
+				 
+				 ft.upload(mediaFile.fullPath, 'https://api.soundcloud.com/tracks.json', win, fail, options);
+				 
+				 // can't use jquery for file uploads
+				 
+//				 var data = { 
+//						oauth_token:  token ,
+//						'track[asset_data]': filedata,
+//						'track[title]': 'A test track',
+//						'track[sharing]': 'private'
+//						};
+//				 
+//				 console.log("About to post the track " + data);
+//				 $.post('https://api.soundcloud.com/tracks.json', data , function(response){
+//								console.log("POST reponse" + response);
+//								});
+	});
 }
 
+
+function getLocation(){
+	
+}
+
+
+function isLoggedIn(){
+
+	var retval = 0;
+	getKey('oauth_token',function(token){
+			
+			if(token != undefined && token != ''){
+				 console.log("isLoggedIn(): LOGGED IN: "+ token);		
+				 retVal = 1;
+			} else {
+				 // make sure that we are really logged out
+				 console.log("isLoggedIn(): NOT LOGGED IN: "+ token);
+				 //removeKey('oauth_token');
+				 retVal = 0;
+			}			 
+	});	
+	console.log("isLoggedIn(): retVal: "+ retVal);
+
+	return retVal;
+}

@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
   <head>
-  <title>SoundAt</title>
+  <title>FoundSound</title>
   
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no;" />
 	<meta charset="utf-8">
@@ -21,6 +21,7 @@
 		
 	<script type="text/javascript" charset="utf-8" src="js/jquery/jquery-1.7.1.min.js"></script>
 	<script type="text/javascript" charset="utf-8" src="js/jquery/jquery.mobile-1.0.js"></script>   
+	<script type="text/javascript" charset="utf-8" src="js/base64.js"></script>   
 
 		<!-- PhoneGap Plugins -->
 	<script type="text/javascript" charset="utf-8" src="js/ChildBrowser.js"></script>
@@ -38,25 +39,17 @@
 		{
 			document.addEventListener("deviceready",onDeviceReady,false);		
 		}
-		
-		
-		
-
-		    
 	</script>    
         
 	</head>
 	<body onload="onBodyLoad()">
 		
-		
-		
-		
-		
+
 		<!-- Start of  page: #record -->
 		<div data-role="page" id="record" data-theme="a">
 			
 			<div data-role="header">
-				<h1>Record a FoundSound</h1>
+				<h1>FoundSound</h1>
 			</div><!-- /header -->
 			
 			<div data-role="content" data-theme="a" >	
@@ -67,6 +60,7 @@
 			
 			<div data-role="footer" data-theme="a" data-position="fixed" class="ui-bar">
 				<a onclick="captureAudio();" data-role="button">Record</a>
+				<a onclick="soundcloudLogout();" data-role="button">Logout</a>
 			</div><!-- /footer -->
 		</div><!-- /page one -->
 		
