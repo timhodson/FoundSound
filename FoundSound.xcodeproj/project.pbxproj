@@ -31,6 +31,7 @@
 		ED5522A7149B645E00A68B9E /* ChildBrowserCommand.m in Sources */ = {isa = PBXBuildFile; fileRef = EDAFD0DA1498CEF9004B9E78 /* ChildBrowserCommand.m */; };
 		ED5522A8149B646300A68B9E /* ChildBrowserViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = EDAFD0DC1498CEF9004B9E78 /* ChildBrowserViewController.m */; };
 		ED5522A9149B648F00A68B9E /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EDAFD1301499326E004B9E78 /* Security.framework */; };
+		EDE0CF8B149B6934002E5B2A /* www in Resources */ = {isa = PBXBuildFile; fileRef = EDAFD0D41498CECF004B9E78 /* www */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -397,6 +398,7 @@
 				ED552295149B629D00A68B9E /* Localizable.strings in Resources */,
 				ED552299149B629D00A68B9E /* Localizable.strings in Resources */,
 				ED55229B149B629D00A68B9E /* PhoneGap.plist in Resources */,
+				EDE0CF8B149B6934002E5B2A /* www in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -605,6 +607,7 @@
 				ED5522A4149B629D00A68B9E /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		EDAFD07E1498CE5F004B9E78 /* Build configuration list for PBXProject "FoundSound" */ = {
 			isa = XCConfigurationList;

@@ -93,10 +93,15 @@ function getUserDetails(){
 				 console.log('getUserDetails() url:' + url);
 
 				 user.data = $.get(url, params, function(data){
-													 console.log('data:'+data);
+													 console.log('data:'+ data.username);
 													 user.username = data.username;
+													 user.uri = data.uri;
+													 user.full_name = data.full_name;
+													 
+													 
+													 $('#soundcloudStatus').html('Connected as '+user.username);
+													 
 													 });
-				 
 				 }
 	});
 }
@@ -210,10 +215,10 @@ function getLocation(){
 								'Heading: '           + position.coords.heading           + '\n' +
 								'Speed: '             + position.coords.speed             + '\n' +
 								'Timestamp: '         + new Date(position.timestamp)      + '\n');
-	}
+	};
 	var fail = function(positionError){
 		console.log('Could not get position: Code: '+ positionError.code + ' Error:' + positionError.message);
-	}
+	};
 	
 	navigator.getCurrentPosition(win, fail, { enableHighAccuracy: true });
 }

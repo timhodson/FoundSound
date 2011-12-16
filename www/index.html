@@ -24,7 +24,7 @@
 	<script type="text/javascript" charset="utf-8" src="js/jquery/jquery.mobile-1.0.js"></script>    
 		<!-- PhoneGap Plugins -->
 	<script type="text/javascript" charset="utf-8" src="js/ChildBrowser.js"></script>
-	<script type="text/javascript" charset="utf-8" src="js /SAiOSKeychainPlugin.js"></script>
+	<script type="text/javascript" charset="utf-8" src="js/SAiOSKeychainPlugin.js"></script>
 
 
 		<!-- Call our app this last -->
@@ -49,9 +49,10 @@
 		<!-- Start of  page: #record -->
 		<div data-role="page" id="record" data-theme="a">
 
+			
 			<div data-role="content" class='content' >
                
-                <p><a onclick="soundcloudLogin();"><img src="images/connect.png" /></a></p>
+                <p><a onclick="soundcloudLogin();" data-role="button"><img src="images/connect.png" /></a></p>
 				<p><a onclick="captureAudio();" data-role="button">Record</a></p>
 				
 			</div><!-- /content -->
