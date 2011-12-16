@@ -24,18 +24,20 @@
 	<false/>
 	<key>ExternalHosts</key>
 	<array>
-		<string>*.soundcloud.com</string>
-		<string>timhodson.com</string>
 		<string>*</string>
+		<string>*.soundcloud.com</string>
+		<string>*.kasabi.com</string>
 	</array>
 	<key>Plugins</key>
 	<dict>
-		<key>SAiOSKeychainPlugin</key>
-		<string>SAiOSKeychainPlugin</string>
-		<key>ChildBrowser</key>
-		<string>ChildBrowser.js</string>
+		<key>ChildBrowserViewController</key>
+		<string>ChildBrowserViewController</string>
 		<key>ChildBrowserCommand</key>
 		<string>ChildBrowserCommand</string>
+		<key>ChildBrowser</key>
+		<string>ChildBrowser.js</string>
+		<key>SAiOSKeychainPlugin</key>
+		<string>SAiOSKeychainPlugin</string>
 		<key>com.phonegap.accelerometer</key>
 		<string>PGAccelerometer</string>
 		<key>com.phonegap.camera</key>

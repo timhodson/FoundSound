@@ -36,7 +36,8 @@
 		
 		function onBodyLoad()
 		{
-			document.addEventListener("deviceready",onDeviceReady,false);		
+			document.addEventListener("deviceready",onDeviceReady,false);	
+				//document.addEventListener("online", yourCallbackFunction, false);
 		}
 	</script>    
         
@@ -90,11 +91,22 @@
 		
 		
 			<div data-role="page" id="uploading" data-theme="e">
-				<h1>Uploading</h1>
-				<p>PLease wait...</p>
+				<div data-role="header">
+					<h1>Uploading</h1>
+				</div>
+				<p>Please wait while we upload your FoundSound...</p>
 			</div>
 		
-		
+		<div data-role="page" id="captureError" data-theme="e">
+			<div data-role="header">
+				<h1>Error</h1>
+			</div>
+			<p>For some reason we could not capture any Audio.  It may be that you didn't use the record button?</p>
+			<p>Try again:</p>
+
+			<a onclick="captureAudio();" data-role="button">Record</a>
+
+		</div>
 		
 		<!-- Start of third page: #login -->
 		<div data-role="page" id="loginPopup">

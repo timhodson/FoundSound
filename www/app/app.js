@@ -2,6 +2,7 @@
 
 console.log('Reading app.js');
 
+var my_client_id = "c45608d987cdd8ac1e9869930c3d8304";
 
 	// our User
 var user = new Object();
@@ -13,34 +14,24 @@ var track = new Object();
 function onDeviceReady()
 {
 	authenticateUser(user);
-		// wait for the authentication check...
-	setTimeout('if(!user.isLoggedIn){soundcloudLogin();}else{console.log("User is already logged in")}',500);
-	
 }
 
 
 
 function soundcloudLogin(){
 	console.log("Attempting to login");
-	var my_client_id = "c45608d987cdd8ac1e9869930c3d8304";
 	var my_redirect_uri = "http://timhodson.com/sc_loginsuccess.html";
 	
 	var authorize_url = "https://soundcloud.com/connect?";
 	authorize_url += "client_id=" + my_client_id;
 	authorize_url += "&redirect_uri=" + my_redirect_uri;
 	authorize_url += "&response_type=token";
+	authorize_url += "&scope=non-expiring";
 	
 	client_browser = ChildBrowser.install();
 	client_browser.onLocationChange = function(loc){ soundcloudLocChanged(loc); };
 	client_browser.onClose = function(){
 		console.log("Child browser closed");
-			//console.log("soundcloudLogin(): getKey(): token = "+ getKey('oauth_token', function(token){return token;}));
-//		if(user.isLoggedIn){
-//			if(callback && typeof(callback) === 'function'){
-//				console.log("EEEEEEEEEEEEEEEE calling callback:"+callback);
-//				callback.call(); 
-//			}
-//		}
 	};
 	
 	if(client_browser != null) {
@@ -76,6 +67,10 @@ function soundcloudLocChanged(loc){
 			setKey('oauth_token', acCode);
 			user.isLoggedIn = true;
 			
+				// TODO get a refresh token for if this token expires)
+			
+			setTimeout(function(){ getUserDetails(); }, 500);
+			
 		}else{
 				// something didn't work so we will make sure the token is unset.
 			console.log("soundcloudLocChanged(): something didn't work: " + acCode);
@@ -84,50 +79,29 @@ function soundcloudLocChanged(loc){
 	}
 }
 
+function getUserDetails(){
+	console.log('Getting user details');
+	getKey('oauth_token', function(token){
+				 if(user.isLoggedIn){
 
+				 var token_bits = token.split("-");
 
+				 var user_id = token_bits[2];
+				 var url = 'http://api.soundcloud.com/users/'+user_id+'.json?'
+				 var params = {client_id: my_client_id} ;
 
+				 console.log('getUserDetails() url:' + url);
 
-	//Keychain accessor functions
-function getKey(key, callback, servicename)
-{	
-	servicename = servicename || 'foundsound';
-	var win = function(key, value) {
-	 	console.log("GET SUCCESS - Key: " + key + " Value: " + value);
-		callback(value);
-	};
-	var fail = function(key, error) {
-		console.log("GET FAIL - Key: " + key + " Error: " + error);
-		callback('');
-	};
-	window.plugins.keychain.getForKey(key, servicename, win, fail);	
+				 user.data = $.get(url, params, function(data){
+													 console.log('data:'+data);
+													 user.username = data.username;
+													 });
+				 
+				 }
+	});
 }
 
-function setKey(key, value, servicename)
-{	
-	servicename = servicename || 'foundsound';
-	var win = function(key) {
-		console.log("SET SUCCESS - Key: " + key);
-	};
-	var fail = function(key, error) {
-		console.log("SET FAIL - Key: " + key + " Error: " + error);
-	};
-	
-	window.plugins.keychain.setForKey(key, value, servicename, win, fail);
-}
 
-function removeKey(key, servicename)
-{
-	servicename = servicename || 'foundsound';
-	var win = function(key) {
-		console.log("REMOVE SUCCESS - Key: " + key);
-	};
-	var fail = function(key, error) {
-		console.log("REMOVE FAIL - Key: " + key + " Error: " + error);
-	};
-	
-	window.plugins.keychain.removeForKey(key, servicename, win, fail);
-}
 
 
 
@@ -160,7 +134,7 @@ function captureSuccess(mediaFiles) {
 		
 //		mymedia.play();
 		
-//		getLocation();
+			//getLocation();
 		
 		uploadFile(mediaFiles[i]);
 		
@@ -173,6 +147,7 @@ function captureSuccess(mediaFiles) {
 function captureError(error) {
 	var msg = 'An error occurred during capture: ' + error.code;
 	navigator.notification.alert(msg, null, 'Uh oh!');
+	$.mobile.changePage('#captureError',{transition:'pop'});
 }
 
 
@@ -220,33 +195,31 @@ function uploadFile(mediaFile, trackName ) {
 				 
 				 ft.upload(mediaFile.fullPath, 'https://api.soundcloud.com/tracks.json', win, fail, options);
 				 
-				 // can't use jquery for file uploads
-				 
-//				 var data = { 
-//						oauth_token:  token ,
-//						'track[asset_data]': filedata,
-//						'track[title]': 'A test track',
-//						'track[sharing]': 'private'
-//						};
-//				 
-//				 console.log("About to post the track " + data);
-//				 $.post('https://api.soundcloud.com/tracks.json', data , function(response){
-//								console.log("POST reponse" + response);
-//								});
-	});
+		});
 }
 
 
 function getLocation(){
 	
-	var win = function(){
-		
+	var win = function(position){
+		console.log('Latitude: '          + position.coords.latitude          + '\n' +
+								'Longitude: '         + position.coords.longitude         + '\n' +
+								'Altitude: '          + position.coords.altitude          + '\n' +
+								'Accuracy: '          + position.coords.accuracy          + '\n' +
+								'Altitude Accuracy: ' + position.coords.altitudeAccuracy  + '\n' +
+								'Heading: '           + position.coords.heading           + '\n' +
+								'Speed: '             + position.coords.speed             + '\n' +
+								'Timestamp: '         + new Date(position.timestamp)      + '\n');
+	}
+	var fail = function(positionError){
+		console.log('Could not get position: Code: '+ positionError.code + ' Error:' + positionError.message);
 	}
 	
 	navigator.getCurrentPosition(win, fail, { enableHighAccuracy: true });
 }
 
 
+	// Check the user is authenticated
 function authenticateUser(user){
 	getKey('oauth_token',function(token){
 			
@@ -260,4 +233,53 @@ function authenticateUser(user){
 				 user.isLoggedIn = false;
 			}			 
 	});	
+	
+		// wait for the authentication check...
+	setTimeout(function(){ if(!user.isLoggedIn){soundcloudLogin();}else{console.log("User is already logged in")} },500);	
+		//populate user details
+	setTimeout(function(){ getUserDetails(); }, 500);
+
 }
+
+	//Keychain accessor functions
+function getKey(key, callback, servicename)
+{	
+	servicename = servicename || 'foundsound';
+	var win = function(key, value) {
+	 	console.log("GET SUCCESS - Key: " + key + " Value: " + value);
+		callback(value);
+	};
+	var fail = function(key, error) {
+		console.log("GET FAIL - Key: " + key + " Error: " + error);
+		callback('');
+	};
+	window.plugins.keychain.getForKey(key, servicename, win, fail);	
+}
+
+function setKey(key, value, servicename)
+{	
+	servicename = servicename || 'foundsound';
+	var win = function(key) {
+		console.log("SET SUCCESS - Key: " + key);
+	};
+	var fail = function(key, error) {
+		console.log("SET FAIL - Key: " + key + " Error: " + error);
+	};
+	
+	window.plugins.keychain.setForKey(key, value, servicename, win, fail);
+}
+
+function removeKey(key, servicename)
+{
+	servicename = servicename || 'foundsound';
+	var win = function(key) {
+		console.log("REMOVE SUCCESS - Key: " + key);
+	};
+	var fail = function(key, error) {
+		console.log("REMOVE FAIL - Key: " + key + " Error: " + error);
+	};
+	
+	window.plugins.keychain.removeForKey(key, servicename, win, fail);
+}
+
+
