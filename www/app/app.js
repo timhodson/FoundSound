@@ -2,13 +2,16 @@
 
 console.log('Reading app.js');
 
-var my_client_id = "c45608d987cdd8ac1e9869930c3d8304";
+var my_client_id = "704b02acddd5d6e51f5cec6a0022d200";
 
 	// our User
 var user = new Object();
-
 var track = new Object();
-
+var geo = new Object();
+var global_access_token = global_access_token || '';
+if (global_access_token == ''){
+	getKey('oauth_token');
+}
 
 /* When this function is called, PhoneGap has been initialized and is ready to roll */
 function onDeviceReady()
@@ -66,10 +69,11 @@ function soundcloudLocChanged(loc){
 				// Store the key in the iOS keychain
 			setKey('oauth_token', acCode);
 			user.isLoggedIn = true;
+			global_access_token = acCode;
 			
 				// TODO get a refresh token for if this token expires)
 			
-			setTimeout(function(){ getUserDetails(); }, 500);
+			setTimeout(function(){ getUserDetails(user); }, 500);
 			
 		}else{
 				// something didn't work so we will make sure the token is unset.
@@ -79,9 +83,10 @@ function soundcloudLocChanged(loc){
 	}
 }
 
-function getUserDetails(){
+function getUserDetails(user){
 	console.log('Getting user details');
-	getKey('oauth_token', function(token){
+		//getKey('oauth_token', function(token){
+	var token = global_access_token;
 				 if(user.isLoggedIn){
 
 				 var token_bits = token.split("-");
@@ -103,7 +108,7 @@ function getUserDetails(){
 													 
 													 });
 				 }
-	});
+		//});
 }
 
 
@@ -118,7 +123,9 @@ function captureAudio() {
 	if(user.isLoggedIn){
 		console.log("About to capture Audio");
 		navigator.device.capture.captureAudio(captureSuccess, captureError, {limit: 2 });
-	} 
+	} else{
+		console.log("Not capturing anything cause you ain't logged in");
+	}
 }
 
 	// Called when capture operation is finished
@@ -139,9 +146,11 @@ function captureSuccess(mediaFiles) {
 		
 //		mymedia.play();
 		
-			//getLocation();
+		getLocation();
 		
 		uploadFile(mediaFiles[i]);
+		
+		setTimeout(function(){buildRDF();},15000); //euuk! needs to be event based on successfull upload
 		
 	}       
 }
@@ -162,23 +171,29 @@ function uploadFile(mediaFile, trackName ) {
 	
 	trackName = trackName || mediaFile.name + ' uploaded by FoundSound';
 	
-	getKey('oauth_token', function(token){
-				 
+		//getKey('oauth_token', function(token){
+	var token = global_access_token;			
+	
 				 $.mobile.changePage('#uploading', {transition:'pop'});
 				 
 				 // phonegap provides a FileTransfer object to allow us to upload files
 				 var win = function(r) {
-					console.log("Code = " + r.responseCode);
-					console.log("Response = " + r.response);
-					console.log("Sent = " + r.bytesSent);
+					 console.log("Code = " + r.responseCode);
+					 console.log("Response = " + r.response);
+					 console.log("Sent = " + r.bytesSent);
+					 
+					 var response = $.parseJSON(r.response);
 				 
-					// don't like using alerts, but for now...
-					navigator.notification.alert("Uploaded Successfully");
+					 track.title = response.title;
+					 track.uri = response.uri;
 				 
-					$.mobile.changePage('#metadata', {transition:'fade'});
+					 console.log("this track title "+track.title);
+					 console.log("this track uri "+track.uri);
+				 
+					 $.mobile.changePage('#metadata', {transition:'fade'});
 				 
 				 }
-				 
+
 				 var fail = function(error) {
 				 alert("An error has occurred: Code = " = error.code);
 				 }
@@ -200,7 +215,7 @@ function uploadFile(mediaFile, trackName ) {
 				 
 				 ft.upload(mediaFile.fullPath, 'https://api.soundcloud.com/tracks.json', win, fail, options);
 				 
-		});
+		//	});
 }
 
 
@@ -215,19 +230,64 @@ function getLocation(){
 								'Heading: '           + position.coords.heading           + '\n' +
 								'Speed: '             + position.coords.speed             + '\n' +
 								'Timestamp: '         + new Date(position.timestamp)      + '\n');
+		
+		geo.lat = position.coords.latitude;
+		geo.long = position.coords.longitude;		
+		
 	};
 	var fail = function(positionError){
 		console.log('Could not get position: Code: '+ positionError.code + ' Error:' + positionError.message);
 	};
 	
-	navigator.getCurrentPosition(win, fail, { enableHighAccuracy: true });
+	navigator.geolocation.getCurrentPosition(win, fail, { enableHighAccuracy: true });
 }
 
 
+function buildRDF(){
+	
+	console.log("Starting to build RDF");
+	
+	console.log("track "+track.uri);
+	console.log("user "+user.uri);
+	console.log("lat "+geo.lat);
+	
+	my_rdf = "<" + track.uri + "> <http://purl.org/dc/terms/title> \"" + track.title + "\" .\n" ;
+ 	my_rdf += "<" + track.uri + "> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://foundsound.at/terms/FoundSound> .\n";
+	my_rdf += "<" + track.uri + "> <http://foundsound.at/terms/recordedAt> <_:place1> .\n";
+	my_rdf += "<_:place1> <http://www.w3.org/2003/01/geo/wgs84_pos#lat> \"" + geo.lat + "\" .\n";
+	my_rdf += "<_:place1> <http://www.w3.org/2003/01/geo/wgs84_pos#long> \"" + geo.long + "\" .\n";
+	my_rdf += "<" + user.uri + "> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://xmlns.com/foaf/0.1/Person> .\n";
+	my_rdf += "<" + user.uri + "> <http://xmlns.com/foaf/0.1/name> \"" + user.full_name + "\" .\n";
+	my_rdf += "<" + user.uri + "> <http://foundsound.at/terms/recorded> \"" + track.uri  + "\" .\n";
+
+	
+	var url = 'http://api.kasabi.com/dataset/foundsound/store';
+	var headers = {X_KASABI_APIKEY:'d2accb7a212917681eb0eb5cbf8f1245a5f636f7'};
+	
+	console.log(my_rdf);
+	
+	$.ajax({
+				 type:'POST',
+				 url: url,
+				 headers: headers,
+				 processData: false,
+				 contentType: 'text/turtle',
+				 data: my_rdf,
+				 success: function(data){
+						console.log('posted data to store '+ data);
+						},
+				 error: function(error){
+						console.log('ERROR: posting data to store '+ data);
+						}
+				 });
+	
+}
+
 	// Check the user is authenticated
 function authenticateUser(user){
-	getKey('oauth_token',function(token){
-			
+		//getKey('oauth_token',function(token){
+	var token = global_access_token;
+	
 			if(token != undefined && token != ''){
 				 console.log("isLoggedIn(): LOGGED IN: "+ token);		
 				 user.isLoggedIn = true;
@@ -237,7 +297,7 @@ function authenticateUser(user){
 				 //removeKey('oauth_token');
 				 user.isLoggedIn = false;
 			}			 
-	});	
+		//	});	
 	
 		// wait for the authentication check...
 	setTimeout(function(){ if(!user.isLoggedIn){soundcloudLogin();}else{console.log("User is already logged in")} },500);	
@@ -247,16 +307,17 @@ function authenticateUser(user){
 }
 
 	//Keychain accessor functions
-function getKey(key, callback, servicename)
+function getKey(key, servicename)
 {	
 	servicename = servicename || 'foundsound';
 	var win = function(key, value) {
 	 	console.log("GET SUCCESS - Key: " + key + " Value: " + value);
-		callback(value);
+			//		callback(value);
+		global_access_token = value;
 	};
 	var fail = function(key, error) {
 		console.log("GET FAIL - Key: " + key + " Error: " + error);
-		callback('');
+			//		callback('');
 	};
 	window.plugins.keychain.getForKey(key, servicename, win, fail);	
 }
@@ -272,6 +333,7 @@ function setKey(key, value, servicename)
 	};
 	
 	window.plugins.keychain.setForKey(key, value, servicename, win, fail);
+	global_access_token = value;
 }
 
 function removeKey(key, servicename)
