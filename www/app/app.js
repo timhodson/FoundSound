@@ -5,6 +5,8 @@
 
 console.log('Reading app.js');
 
+var foursquare_api_verified_date = '20111201';
+
 /* When this function is called, PhoneGap has been initialized and is ready to roll */
 function onDeviceReady()
 {
@@ -22,16 +24,60 @@ function onDeviceReady()
 															// set a callback for a successfull login event
 															onLoggedIn: getSoundcloudUserDetails
 															});
+	
+	soundcloud.onLoggedOut.subscribe(function(){ $("#soundcloudStatus").html('Soundcloud: Login'); });
 		// initiate the authentication
 	soundcloud.authenticate();
 	
+		// foursquare login
+	foursquare = new oAuthLogin({
+															servicename: 'foursquare',
+															authorize_url: 'https://foursquare.com/oauth2/authenticate',
+															redirect_uri: 'http://timhodson.com/sc_loginsuccess.html',
+															client_id: my_foursquare_client_id,
+															response_type: 'token',
+															scope: 'non-expiring',
+															// set a callback for successfull login
+															onLoggedIn: getFoursquareUserDetails
+															});
+	foursquare.onLoggedOut.subscribe(function(){ $("#foursquareStatus").html('Foursquare: Login'); });
+	foursquare.authenticate();
+
+	console.log("Device init completed.");
+}
+
+getFoursquareUserDetails = function(){
+	console.log("logged in with foursquare and calling user callback.");
+	
+	if(foursquare.checkIsLoggedIn()){
+		var	url = 'https://api.foursquare.com/v2/users/self';
+		var params = {
+			'oauth_token': foursquare.getToken(), 
+			'v': foursquare_api_verified_date
+		}
+		
+		foursquare.user = {};
+		$.get(url, params, function(data){
+					console.log("Retrieved user details from foursquare: " + JSON.stringify(data));
+					console.log('data.name: '+ data.response.user.firstName + ' ' + data.response.user.lastName );
+				
+					foursquare.user.data = data.response.user;
+					foursquare.user.firstName = data.response.user.firstName;
+					foursquare.user.lastName = data.response.user.lastName;
+					foursquare.user.uri = 'https://api.foursquare.com/v2/users/' + data.response.user.id;
+					foursquare.user.full_name = data.response.user.firstName + ' ' + data.response.user.lastName ;
+
+
+					$("#foursquareStatus").html('<img src="'+ foursquare.user.data.photo +'" width="25" height="25" />Foursquare: '+ foursquare.user.full_name);
+					});
+	}
 }
 
 	// This callback is used when we login with soundcloud to get the soundcloud user's details
 var getSoundcloudUserDetails = function(e){
 	console.log('Getting user details at event: '+ e );
 	
-	if(soundcloud.isLoggedIn()){
+	if(soundcloud.checkIsLoggedIn()){
 		
 		var token_bits = soundcloud.getToken().split("-");
 		
@@ -42,26 +88,69 @@ var getSoundcloudUserDetails = function(e){
 		console.log('getUserDetails() url:' + url);
 		
 		soundcloud.user = {};
-		soundcloud.user.data = $.get(url, params, function(data){
-																 console.log("Retrieved user details from soundcloud: " + JSON.stringify(data));
-																 
-																 console.log(' data.username: '+ data.username + 
-																						 ' data.uri: ' + data.uri + 
-																						 ' data.full_name: ' + data.full_name
-																						 );
-																 soundcloud.user.username = data.username;
-																 soundcloud.user.uri = data.uri;
-																 soundcloud.user.full_name = data.full_name;
-																 
-																 $("p#soundcloudStatus").html('Soundcloud: '+ soundcloud.user.username);
-																 });
+		$.get(url, params, function(data){
+				 console.log("Retrieved user details from soundcloud: " + JSON.stringify(data));
+				 
+				 console.log(' data.username: '+ data.username + 
+										 ' data.uri: ' + data.uri + 
+										 ' data.full_name: ' + data.full_name
+										 );
+				 soundcloud.user.data = data;
+				 soundcloud.user.username = data.username;
+				 soundcloud.user.uri = data.uri;
+				 soundcloud.user.full_name = data.full_name;
+				 
+				 $("#soundcloudStatus").html('<img src="'+ soundcloud.user.data.avatar_url +'" width="25" height="25" /> Soundcloud: '+ soundcloud.user.username);
+				 });
 	}
 }
 
+
+	// button onclick events
+
+function foursquareConnect(){
+	console.log('change foursquare connetion state');
+	if(foursquare.checkIsLoggedIn()){
+		
+		var onConfirm = function(button){
+			if(button == 1){ 
+				console.log("button: "+ button + " foursquare: " + typeof(foursquare));
+				foursquare.logout(); 
+			} 
+		};
+
+		navigator.notification.confirm('We\'ll be unable to offer you acurate places when you record FoundSounds', onConfirm, 'Disconnect?', 'disconnect, cancel' );
+		
+	}else{
+		foursquare.login();
+	}
+}
+
+function soundcloudConnect(){
+	console.log('change soundcloud connetion state');
+	if(soundcloud.checkIsLoggedIn()){
+		console.log('User is logged in so we continue to offer them a logout option');
+
+		var onConfirm = function(button){ 
+			console.log("button: "+ button + " soundcloud: " + typeof(soundcloud));
+			if(button == 1){ 
+				soundcloud.logout() ;
+			} 
+		};
+		
+		navigator.notification.confirm('You will be unable to upload any FoundSounds.', onConfirm, 'Disconnect?', 'disconnect, cancel');
+		
+	}else{
+		console.log('The user is not logged in');
+		soundcloud.login();
+	}
+}
+
+
 	// A button will call this function from the UI
 function captureAudio() {	
-	
-	if(soundcloud.isLoggedIn()){
+	console.log("captureAudio(): ... ");
+	if(soundcloud.checkIsLoggedIn()){
 		console.log("About to capture Audio as user: " + soundcloud.user.username );
 		
 			// create a new track object
@@ -77,8 +166,9 @@ function captureAudio() {
 		track.capture();
 		
 			// Create a new geo object which will contain the location of this recording.  
-			// This object is self initiating.
 		geo = new Geo();
+		geo.onGetLocationSuccess.subscribe(getNearbyVenues);
+		geo.getLocation();
 		
 	} else{
 		console.log("Not capturing anything cause you ain't logged in");
@@ -87,6 +177,14 @@ function captureAudio() {
 }
 
 
+function captureLocation(){
+	console.log('Capturing the location manually');
+		// Create a new geo object which will contain the location of this recording.  
+	geo = new Geo();
+	geo.onGetLocationSuccess.subscribe(getNearbyVenues);
+	geo.getLocation();
+
+}
 
 	// Simple string building function to create the necessary RDF.
 	// Suggest this expanded to something more modular at some point as data needs grow.
@@ -133,18 +231,52 @@ function buildRDF(){
 	
 }
 
+	// function to get nearby venues from foursquare
+	// relies on having a Geo object in scope when called.
+	// TDOD - might be best to have own geo object?
+	// TODO - do something with the venues found!
+getNearbyVenues = function(){
+	console.log('getNearbyVenues(): ...');
+	
+	var url = 'https://api.foursquare.com/v2/venues/search';
+	console.log('url: '+url);
+	
+	var latlong = geo.getStartPosition();
+	console.log('latlong: '+typeof(latlong));
+	
+	var params = { 
+		oauth_token: foursquare.getToken(),
+		v: foursquare_api_verified_date,
+		ll: latlong[0] + ',' + latlong[1], 
+		limit: 50, 
+		intent:'browse',
+		radius: 1000,
+		};
+
+	console.log("Request: "+url+ " Params: "+ JSON.stringify(params));
+
+	$.get(url, params, function(data){
+				console.log("Venues Data: " + JSON.stringify(data));
+				
+				//$.each(data, function(k,v){
+				//		console.log(k +' => '+ v);
+				//		});
+			 });
+}
 
 
 
 
-	// Self initiating object for retrieving the devices current location
+
+
+	// Object for retrieving the devices current location
 	// has an update function that could be called periodically.
 	// results in a set of arrays with an index for each data point
 	// provides getStartPosition and getEndPosition methods.
 function Geo(){
-	this.onGetLocationSuccess = new YAHOO.util.CustomEvent('get location success', this);
-	this.onUpdateLocationSuccess = new YAHOO.util.CustomEvent('updated location success', this);
-	this.onGetLocationFail = new YAHOO.util.CustomEvent('get location failed', this);
+	this.onGetLocationSuccess			= new YAHOO.util.CustomEvent('get location success', this);
+	this.onUpdateLocationSuccess	= new YAHOO.util.CustomEvent('updated location success', this);
+	this.onGetLocationFail				= new YAHOO.util.CustomEvent('get location failed', this);
 	
 		// make our location data arrays
 	this.lat = [];
@@ -156,9 +288,15 @@ function Geo(){
 	this.speed = [];
 	this.timestamp = [];
 	
-		// get our location right away.	
-	this.getLocation();
+	this.onGetLocationSuccess.subscribe(this.eventNotification);
+	this.onUpdateLocationSuccess.subscribe(this.eventNotification);
+	this.onGetLocationFail.subscribe(this.eventNotification);
+	
+		// DONT get our location right away.	
+		//	this.getLocation();
 }
+
+Geo.prototype.eventNotification = function(e){ console.log("Geo Event Fired: "+ e); }
 
 Geo.prototype.getLocation = function (){
 	
@@ -216,13 +354,13 @@ Geo.prototype.storePosition = function(position){
 	this.timestamp.push(position.timestamp);	
 }
 
-Geo.prototype.getStartLocation = function(){
+Geo.prototype.getStartPosition = function(){
 	var out = [this.lat[0], this.long[0]];
 	console.log("Output:" + typeof(out));
 	return out;
 }
 
-Geo.prototype.getEndLocation = function(){
+Geo.prototype.getEndPosition = function(){
 	var len = this.lat.length - 1;
 	var out =  [this.lat[len], this.long[len]];
 	console.log("Output:" + typeof(out));
@@ -248,16 +386,18 @@ function Track(){
 	this.onTrackUploaded = new YAHOO.util.CustomEvent('track uploaded', this);
 	this.onRdfUploaded = new YAHOO.util.CustomEvent('track RDF uploaded', this);
 	
-	this.onCaptureStart.subscribe(function(e){ console.log("Event Fired: "+ e); });
-	this.onCaptureEnd.subscribe(function(e){ console.log("Event Fired: "+ e); });
-	this.onUploadStart.subscribe(function(e){ console.log("Event Fired: "+ e); });
-	this.onUploadEnd.subscribe(function(e){ console.log("Event Fired: "+ e); });
-	this.onTrackUploaded.subscribe(function(e){ console.log("Event Fired: "+ e); });	
-	this.onRdfUploaded.subscribe(function(e){ console.log("Event Fired: "+ e); });
+	this.onCaptureStart.subscribe(this.eventNotification);
+	this.onCaptureEnd.subscribe(this.eventNotification);
+	this.onUploadStart.subscribe(this.eventNotification);
+	this.onUploadEnd.subscribe(this.eventNotification);
+	this.onTrackUploaded.subscribe(this.eventNotification);	
+	this.onRdfUploaded.subscribe(this.eventNotification);
 	
 	this.onCaptureEnd.subscribe(this.uploadFile, this);
 	
 }
+
+Track.prototype.eventNotification = function(e){ console.log("Track Event Fired: "+ e); }
 
 Track.prototype.capture = function(){
 	this.onCaptureStart.fire();
@@ -385,7 +525,17 @@ function oAuthLogin(params) {
 	this.access_token = '';
 
 		// define some events
-	this.onLoggedIn = new YAHOO.util.CustomEvent('logged in');
+	this.startedOAuthProcess	= new YAHOO.util.CustomEvent('oAuth started', this);
+		// fired when a check user is logged in process is running
+	this.startIsUserLoggedIn	= new YAHOO.util.CustomEvent('start is user logged in', this);
+	this.endIsUserLoggedIn		= new YAHOO.util.CustomEvent('end is user logged in', this);
+		// fired when logout process is running (use for a 'busy' icon?)
+	this.startLogOut					= new YAHOO.util.CustomEvent('start log out', this);
+	this.endLogOut						= new YAHOO.util.CustomEvent('end log out', this);
+		// fired when user status is either logged in or out not at point of first login or out
+	this.onLoggedIn						= new YAHOO.util.CustomEvent('logged in', this);
+	this.onLoggedOut					= new YAHOO.util.CustomEvent('logged out', this);
+	
 	
 	if(typeof(this.fnOnLoggedIn) === 'function'){
 		console.log("We have a function");
@@ -394,28 +544,35 @@ function oAuthLogin(params) {
 		console.log("We should be getting a function for this var instead of: "+ typeof(params.onLoggedIn));
 	}
 	
-	this.onLoggedIn.subscribe(function(type){
-														console.log("onLoggedIn event triggered: event type: " + type);
-														});
+	this.startedOAuthProcess.subscribe(this.eventNotification);
+	this.startIsUserLoggedIn.subscribe(this.eventNotification);
+	this.endIsUserLoggedIn.subscribe(this.eventNotification);
+	this.startLogOut.subscribe(this.eventNotification);
+	this.endLogOut.subscribe(this.eventNotification);
+	this.onLoggedIn.subscribe(this.eventNotification);
+	this.onLoggedOut.subscribe(this.eventNotification);
 	
-	this.onLoggedOut = new YAHOO.util.CustomEvent('logged out');
+	this.startedOAuthProcess.fire();
 	
 }
+
+oAuthLogin.prototype.eventNotification = function(e){	console.log("OAuth Event triggered: "+ e);}
+
 	// Check to see if user is already logged in
 oAuthLogin.prototype.authenticate = function(){
 		// see if user is alredy logged in?
 	console.log("Checking to see if user is logged in...");
 	
-	if(this.haveTriedLocalToken === false ,this.access_token == undefined || this.access_token == ''){
+	if(this.access_token == undefined || this.access_token == ''){
 		console.log("trying to get an existing key");
 		this.getKey('oauth_token_' + this.servicename);
 	}
 	
-	if(this.haveTriedLocalToken === true && ( this.access_token == undefined || this.access_token == '' )){
-			// TODO this needs to be conditional with the above somehow, and include refresh token support?
-		console.log("Going to try a normal login...");
-		this.login();
-	}
+//	if(this.haveTriedLocalToken === true && ( this.access_token == undefined || this.access_token == '' )){
+//			// TODO this needs to be conditional with the above somehow, and include refresh token support?
+//		console.log("Going to try a normal login...");
+//		this.login();
+//	}
 }
 
 oAuthLogin.prototype.login = function(){
@@ -471,18 +628,25 @@ oAuthLogin.prototype.locChanged = function(loc){
 		}
 	}
 }
-	// Should be calling this method rather than the same named property.
-	// TODO make sure using method not property.
-oAuthLogin.prototype.isLoggedIn = function(){
+
+oAuthLogin.prototype.checkIsLoggedIn = function(){
+	
+	this.startIsUserLoggedIn.fire();
+	
 	if(this.isLoggedIn === false){
 		console.log("isLoggedIn(): NOT LOGGED IN");
+		this.endIsUserLoggedIn.fire();
+		this.onLoggedOut.fire();
 		return false;
 	}else if(this.isLoggedIn === true){
 		console.log("isLoggedIn(): LOGGED IN");
+		this.endIsUserLoggedIn.fire();
 		return true;
 	}else{
 			// any other value means we are not reliably logged in.
 		console.log("isLoggedIn(): NOT LOGGED IN (fallback)");
+		this.endIsUserLoggedIn.fire();
+		this.onLoggedOut.fire();
 		return false;
 	}
 }
@@ -493,14 +657,17 @@ oAuthLogin.prototype.getToken = function(){
 
 oAuthLogin.prototype.refresh_token = function(){
 		// do something about getting refresh tokens here...
-		
+		// TODO if necessay (we mostly request non-expiring tokens)
 }
 
 oAuthLogin.prototype.logout = function(){
+	this.startLogOut.fire();
 	console.log("oAuthLogin.logout() Logging out");
 	this.removeKey('oauth_token_' + this.servicename);
 	this.isLoggedIn = false;
-	this.onLoggedout.fire();
+	
+	this.endLogOut.fire();
+	this.onLoggedOut.fire();
 }
 
 	//Keychain accessor functions
@@ -519,7 +686,7 @@ oAuthLogin.prototype.getKey = function(key, servicename)
 		console.log("GET FAIL - Key: " + key + " Error: " + error);
 			//		callback('');
 		that.isLoggedIn = false;
-		that.login();
+			//		that.login();
 	};
 	window.plugins.keychain.getForKey(key, servicename, win, fail);	
 }

@@ -34,7 +34,7 @@
 	<script type="text/javascript" charset="utf-8" src="js/SAiOSKeychainPlugin.js"></script>
 	
 	 <!-- Call our app this last -->
-	<script type="text/javascript" charset="utf-8" src="app/secrets.js"></script> 
+	<script type="text/javascript" charset="utf-8" src="app/local_secrets.js"></script> 
 	<script type="text/javascript" charset="utf-8" src="app/app.js"></script>
 
 
@@ -56,14 +56,17 @@
 
 
 		<!-- Start of  page: #record -->
-		<div data-role="page" id="record" data-theme="a">
+		<div data-role="page" id="record" data-theme="b">
 
 			
 			<div data-role="content" class='content' >
                
 				<!-- <p><a onclick="soundcloudLogin();" ><img src="images/connect.png" /></a></p> -->
-				<p><a onclick="captureAudio();" data-role="button">Record</a></p>
-			 <p id="soundcloudStatus">Not logged in to Soundcloud</p>
+			 <p><a onclick="captureAudio();" data-role="button">Record</a></p>
+			 <p><a onclick="captureLocation();" data-role="button">Location</a></p>
+				
+			 <p><a id="soundcloudStatus" data-role="button" onclick="soundcloudConnect();">Not logged in to Soundcloud</a></p>
+			 <p><a id="foursquareStatus" data-role="button" onclick="foursquareConnect();">Not logged in to FourSquare</a></p>
 				
 			</div><!-- /content -->
 
