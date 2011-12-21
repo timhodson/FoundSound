@@ -20,19 +20,29 @@
 		<!-- <script type="text/javascript" charset="utf-8" src="json2.js"></script> -->
 	<script type="text/javascript" charset="utf-8" src="js/phonegap-1.2.0.js"></script>
 
+
+	 
+	 
+	 
 	<script type="text/javascript" charset="utf-8" src="js/jquery/jquery-1.7.1.min.js"></script>
 	<script type="text/javascript" charset="utf-8" src="js/jquery/jquery.mobile-1.0.js"></script>    
 	<script type="text/javascript" charset="utf-8" src="js/jquery.rdfquery.core.min-1.0.js"></script>
+	 
+	 <script type="text/javascript" charset="utf-8" src="js/yahoo-min.js"></script>
+	 <script type="text/javascript" charset="utf-8" src="js/event-min.js"></script>
+	 
+	 
 
 		<!-- PhoneGap Plugins -->
 	<script type="text/javascript" charset="utf-8" src="js/ChildBrowser.js"></script>
 	<script type="text/javascript" charset="utf-8" src="js/SAiOSKeychainPlugin.js"></script>
-		
 	
-		<!-- Call our app this last -->
+	 <!-- Call our app this last -->
+	<script type="text/javascript" charset="utf-8" src="app/secrets.js"></script> 
 	<script type="text/javascript" charset="utf-8" src="app/app.js"></script>
 
-<script src="http://debug.phonegap.com/target/target-script-min.js#65c865v765b87b987n09m"></script>
+
+	 
 	<script type="text/javascript">
 		console.log('message from index.html');
 
@@ -55,8 +65,9 @@
 			
 			<div data-role="content" class='content' >
                
-                <p><a onclick="soundcloudLogin();" ><img src="images/connect.png" /></a></p>
+				<!-- <p><a onclick="soundcloudLogin();" ><img src="images/connect.png" /></a></p> -->
 				<p><a onclick="captureAudio();" data-role="button">Record</a></p>
+			 <p id="soundcloudStatus">Not logged in to Soundcloud</p>
 				
 			</div><!-- /content -->
 
@@ -97,7 +108,7 @@
 			<div data-role="header">
 				<h1>Error</h1>
 			</div>
-			<p>For some reason we could not capture any Audio.  It may be that you didn't use the record button?</p>
+			<p>For some reason we could not capture any Audio.  It may be that you pressed the done button too early?</p>
 			<p>Try again:</p>
 
 			<a onclick="captureAudio();" data-role="button">Record</a>
