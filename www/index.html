@@ -55,25 +55,29 @@
 	<body onload="onBodyLoad()">
 
 
-		<!-- Start of  page: #record -->
-		<div data-role="page" id="record" data-theme="b">
+		<!-- Start of  page: #home -->
+		<div data-role="page" id="home" data-theme="b">
 
-			
 			<div data-role="content" class='content' >
                
 				<!-- <p><a onclick="soundcloudLogin();" ><img src="images/connect.png" /></a></p> -->
+			 
 			 <p><a onclick="captureAudio();" data-role="button">Record</a></p>
-			 <p><a onclick="captureLocation();" data-role="button">Location</a></p>
 				
-			 <p><a id="soundcloudStatus" data-role="button" onclick="soundcloudConnect();">Not logged in to Soundcloud</a></p>
-			 <p><a id="foursquareStatus" data-role="button" onclick="foursquareConnect();">Not logged in to FourSquare</a></p>
-				
-			</div><!-- /content -->
+			 <!-- <p><a onclick="captureLocation();" data-role="button">Location</a></p> -->
 
+			</div><!-- /content --> 
+			<div data-role="footer" data-position="fixed" class="ui-bar foundsound-footer">
+				<a href="#find" data-role="button" data-icon="foundsound-find" data-iconpos="notext">Find</a>
+				<a href="#activity" data-role="button" data-icon="foundsound-activity" data-iconpos="notext">Activity</a>
+				<a onclick="captureAudio();" data-role="button" data-icon="foundsound-record" data-iconpos="notext">Record</a>
+				<a href="#lists" data-role="button" data-icon="foundsound-lists" data-iconpos="notext">Lists</a>
+				<a href="#you" data-role="button" data-icon="foundsound-you" data-iconpos="notext">You</a>
+			</div>
 		</div><!-- /page one -->
 
 
-		<!-- Start of second page: #two -->
+		<!-- Start of second page: #metadata -->
 		<div data-role="page" id="metadata" data-theme="a">
 
 			<div data-role="header">
@@ -114,20 +118,26 @@
 
 		</div>
 		
+		
 		<!-- Start of third page: #login -->
-		<div data-role="page" id="loginPopup">
+		<div data-role="page" id="you">
 
 			<div data-role="header" data-theme="e">
-				<h1>Login to SoundCloud</h1>
+				<h1>You</h1>
 			</div><!-- /header -->
 
 			<div data-role="content" data-theme="a">
-				<h2>Login</h2>
-				<p>To capture FoundSounds, you will need to have a soundcloud account.</p>
-				<p><a href="#record" data-rel="back" data-role="button" data-inline="true" data-icon="back">prob won't need this dialog</a></p>
+				<h2>Connected Accounts</h2>
+				<p><a id="soundcloudStatus" data-role="button" onclick="soundcloudConnect();">Not logged in to Soundcloud</a></p>
+				<p>	We use soundcloud to store your FoundSound Audio.</p>
+				<!-- TODO add something about SoundCloud quota -->
+				<p><a id="foursquareStatus" data-role="button" onclick="foursquareConnect();">Not logged in to FourSquare</a></p>
+				<p>We use Foursquare to help you lock in your location to nearby places.</p>
+				
+				<p><a href="#record" data-rel="back" data-role="button" data-inline="true" data-icon="back">back</a></p>
 			</div><!-- /content -->
 		</div><!-- /page popup -->
-
+		
 
 
 

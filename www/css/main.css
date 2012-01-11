@@ -1,2 +1,34 @@
-#record{background:url("../images/home-bg.png") no-repeat 0 -20px;}
-#record .content{position:absolute;bottom:40px;text-align:center;width:90%}
+#home{background:url("../images/home-bg.png") no-repeat 0 -20px;}
+#home .content{position:absolute;bottom:40px;text-align:center;width:90%}
+
+.foundsound-footer a.ui-btn, .foundsound-footer a.ui-btn * {
+	background:transparent ;
+	background-image:none ;
+	border:none;
+	box-shadow:none;
+	-webkit-box-shadow:none;
+	border-radius:0;
+	-webkit-border-radius:0;
+	
+}
+.foundsound-footer a.ui-btn[data-icon="foundsound-record"] {
+	width:80px;
+	height:57px;
+	margin: 0 2px 0 0;
+}
+.foundsound-footer a.ui-btn {
+	display: block;
+	position:relative;
+	margin: 17px 2px 0 0;
+	float:left;
+	width:55px;
+	height:40px;
+}
+
+.foundsound-footer { 
+	background: transparent; 
+	border:none; 
+	padding: 0;
+}
+
+
